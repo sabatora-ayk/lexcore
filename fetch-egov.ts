@@ -89,6 +89,26 @@ function findAllTags(node: LawNode | string | undefined, targetTag: string): Law
   return results;
 }
 
+// --- Article群をテキストへ変換(prefixで本則/附則を区別する) ---
+
+function articlesToText(articles: LawNode[], prefix: string): string {
+  return articles
+    .map((article) => {
+      const titleNode = article.children?.find(
+        (c) => typeof c !== "string" && c.tag === "ArticleTitle"
+      ) as LawNode | undefined;
+      const title = titleNode ? extractText(titleNode) : "";
+      const body = extractText(article);
+      const withTitle = body.startsWith(title) ? body : `${title}${body}`;
+      // 本則の条文と附則の条文が同じ「第一条」等を持ちうるため、
+      // 附則側には明示的に prefix("附則") を前置して文字列として区別する。
+      // (TASK-004のextractArticleBlocksが「附則第一条」を「第一条」とは
+      //  別の条文ブロックとして扱えるようにするための最小限の対応)
+      return prefix ? `${prefix}${withTitle}` : withTitle;
+    })
+    .join("\n");
+}
+
 // --- MainProvision（本則）配下の条文をテキストとして連結 ---
 
 function extractMainProvisionText(lawFullText: LawNode | undefined): string {
@@ -109,20 +129,32 @@ function extractMainProvisionText(lawFullText: LawNode | undefined): string {
     throw new Error("FATAL: Article(条文)が1件も見つかりませんでした。処理を停止します。");
   }
 
-  // 条文ブロック抽出(TASK-004)が「第○条」マーカーで機能するよう、
-  // ArticleTitle(第○条)を明示的に本文へ含めて連結する
-  return articles
-    .map((article) => {
-      const titleNode = article.children?.find(
-        (c) => typeof c !== "string" && c.tag === "ArticleTitle"
-      ) as LawNode | undefined;
-      const title = titleNode ? extractText(titleNode) : "";
-      const body = extractText(article);
-      // ArticleTitleは通常body内にも含まれるため重複しないよう、
-      // タイトルが本文冒頭に無ければ補う
-      return body.startsWith(title) ? body : `${title}${body}`;
-    })
-    .join("\n");
+  return articlesToText(articles, "");
+}
+
+// --- SupplProvision（附則）配下のテキストを抽出（施行日取得のための最小対応） ---
+//
+// 附則には条文番号(第○条)が振られている場合と、番号なしの一段落のみの場合がある。
+// Phase 0では高度な構造化は行わず、以下の最小限の方針のみ実装する:
+//   - Article要素があれば、本則と同様に抽出し「附則」を前置して条番号衝突を回避する
+//   - Article要素が無ければ、SupplProvision全体を「附則」という1ブロックとして扱う
+function extractSupplProvisionsText(lawFullText: LawNode | undefined): string {
+  if (!lawFullText) return "";
+
+  const supplProvisions = findAllTags(lawFullText, "SupplProvision");
+  if (supplProvisions.length === 0) return "";
+
+  const blocks = supplProvisions.map((suppl) => {
+    const articles = findAllTags(suppl, "Article");
+    if (articles.length > 0) {
+      return articlesToText(articles, "附則");
+    }
+    // 条番号なしの附則（単一段落のみ等）は、まるごと1ブロックとして扱う
+    const wholeText = extractText(suppl);
+    return `附則${wholeText}`;
+  });
+
+  return blocks.join("\n");
 }
 
 // --- メイン処理 ---
@@ -134,7 +166,12 @@ async function run(input: string): Promise<void> {
   // fetchLawData/extractMainProvisionTextの失敗はここでthrowさせ、
   // main()側で一箇所にまとめてfail-closed終了する(自動リトライ・部分公開はしない)
   const data = await fetchLawData(lawId);
-  const rawText = extractMainProvisionText(data.law_full_text);
+  const mainText = extractMainProvisionText(data.law_full_text);
+  const supplText = extractSupplProvisionsText(data.law_full_text);
+  // 附則(施行日等の根拠)を本則に続けて連結する。取得できなくても本則があれば
+  // 処理は継続する(施行日のEvidenceが得られないだけで、fail-closedにより
+  // effective_date自体が空欄になる。これはADR-001の想定内の挙動)
+  const rawText = supplText ? `${mainText}\n${supplText}` : mainText;
 
   const resolvedLawId = data.law_info?.law_id ?? lawId;
   const title = data.revision_info?.law_title ?? "";
