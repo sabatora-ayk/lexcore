@@ -24,6 +24,10 @@
  * Phase 2以降のバックログ（今回は実装しない）:
  *   - types/ai-provider.ts の AIProvider を実装した自動API呼び出し（ClaudeProvider等）
  *   - promptコマンドとvalidateコマンドの自動連結（人手レビューを挟まない完全自動化）
+ *   - law_id引数の省略: 現状は `prompt <law_id>` のように毎回law_idを手入力する必要が
+ *     あるが、直前に fetch-egov.ts が生成した data/raw/*.source.json のうち
+ *     最新の更新日時を持つファイルから law_id を自動推測できるようにする
+ *     （複数法令を並行して扱う場合は誤爆のリスクがあるため、Phase 0では明示指定を維持する）
  */
 
 import { readFile, writeFile, mkdir } from "node:fs/promises";
