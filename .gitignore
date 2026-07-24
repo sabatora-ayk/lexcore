@@ -1,2 +1,10 @@
 node_modules/
-data/
+
+.next/
+out/
+
+data/raw/
+data/prompts/
+data/responses/
+
+.env*

@@ -1,0 +1,35 @@
+{
+  "title": "国旗及び国歌に関する法律",
+  "summary3": "国旗は日章旗、国歌は君が代と定められています。\nそれぞれの制式・歌詞・楽曲は別記で定められています。\n公布の日から施行されています。",
+  "affected": "",
+  "affected_evidence": [],
+  "affected_confidence": {
+    "level": "low",
+    "reason": "本文は国旗・国歌そのものを定める規定であり、特定の対象者に手続き等を課す条文が見当たらないため"
+  },
+  "impact_household": "",
+  "impact_household_evidence": [],
+  "impact_household_confidence": {
+    "level": "low",
+    "reason": "本文から家計への直接的影響を示す根拠が見つからなかったため"
+  },
+  "impact_sme": "",
+  "impact_sme_evidence": [],
+  "impact_sme_confidence": {
+    "level": "low",
+    "reason": "本文から中小企業への直接的影響を示す根拠が見つからなかったため"
+  },
+  "effective_date": "公布の日から施行",
+  "effective_date_evidence": [
+    {
+      "id": "f3a1c2d4-7b1e-4c9a-9d2b-6e5f1a2b3c4d",
+      "article": "附則",
+      "source_text": "この法律は、公布の日から施行する",
+      "reason": "施行期日として附則に明記されているため",
+      "type": "explicit"
+    }
+  ],
+  "source_url": "https://laws.e-gov.go.jp/law/411AC0000000127",
+  "related_laws": [],
+  "created_at": "2026-07-24T00:53:57.542Z"
+}

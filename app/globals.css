@@ -1,0 +1,53 @@
+@import url("https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@500;700&family=Noto+Sans+JP:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap");
+
+:root {
+  /* 藍色を基調に、罫線は紙の折り目のような淡い色。信頼度スタンプにのみ朱色を使う。 */
+  --paper: #eaece6;
+  --paper-card: #f5f6f1;
+  --ink: #23221f;
+  --ink-muted: #6a675e;
+  --navy: #24365c;
+  --navy-soft: #3d5480;
+  --seal-red: #ab3a2c;
+  --line: #d6d2c2;
+  --line-strong: #b9b4a0;
+
+  --font-display: "Noto Serif JP", "Hiragino Mincho ProN", serif;
+  --font-body: "Noto Sans JP", "Hiragino Kaku Gothic ProN", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  padding: 0;
+  margin: 0;
+}
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-body);
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: var(--navy);
+}
+
+a:focus-visible,
+button:focus-visible {
+  outline: 2px solid var(--navy);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
